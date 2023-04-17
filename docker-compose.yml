@@ -1,0 +1,66 @@
+version: "3"
+services:
+  sd-auto:
+    image: sd-webui:auto
+    container_name: sd-webui_auto
+    environment:
+      - CLI_ARGS=--allow-code --medvram --opt-split-attention --xformers --enable-insecure-extension-access --api
+    ports:
+      - 7860:7860
+    volumes:
+      - ./volumes/data/.cache:/data/.cache
+
+      - ./volumes/models/Stable-diffusion:/data/StableDiffusion
+      - ./volumes/models/VAE:/data/VAE
+      - ./volumes/models/Codeformer:/data/Codeformer
+      - ./volumes/models/GFPGAN:/data/GFPGAN
+      - ./volumes/models/ESRGAN:/data/ESRGAN
+      - ./volumes/models/BSRGAN:/data/BSRGAN
+      - ./volumes/models/RealESRGAN:/data/RealESRGAN
+      - ./volumes/models/SwinIR:/data/SwinIR
+      - ./volumes/models/ScuNET:/data/ScuNET
+      - ./volumes/models/LDSR:/data/LDSR
+      - ./volumes/models/hypernetworks:/data/Hypernetworks
+      - ./volumes/models/torch_deepdanbooru:/data/Deepdanbooru
+      - ./volumes/models/BLIP:/data/BLIP
+      - ./volumes/models/midas:/data/MiDaS
+      - ./volumes/models/Lora:/data/Lora
+      - ./volumes/models/ControlNet:/data/ControlNet
+      - ./volumes/models/openpose:/data/openpose
+
+      - ./volumes/embeddings:/data/embeddings
+      - ./volumes/repositories:/stable-diffusion-webui/repositories
+      - ./volumes/textual_inversion_templates:/stable-diffusion-webui/textual_inversion_templates
+      - ./volumes/textual_inversion:/stable-diffusion-webui/textual_inversion
+      - ./volumes/config:/data/config
+
+      - ./volumes/extensions:/data/config/auto/extensions
+      - ./volumes/output:/output
+
+    stop_signal: SIGINT
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ['0']
+              capabilities: [gpu]
+#      restart_policy:
+#        delay: 5s
+#        max_attempts: 10
+#        window: 120s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+  photoprism:
+    image: photoprism/photoprism:latest
+    container_name: photoprism
+    environment:
+      - PHOTOPRISM_ADMIN_PASSWORD=admin
+    volumes:
+      - ./volumes/output/:/photoprism/originals/media photoprism/photoprism
+      - ./volumes/photoprism/storage:/photoprism/storage
+    ports:
+      - 2342:2342
