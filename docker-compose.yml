@@ -35,7 +35,7 @@ services:
       - ./volumes/config:/data/config
 
       - ./volumes/extensions:/data/config/auto/extensions
-      - ./volumes/output:/output
+      - ./volumes/outputs:/outputs
 
     stop_signal: SIGINT
     deploy:
